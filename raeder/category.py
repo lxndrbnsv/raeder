@@ -253,11 +253,14 @@ class ScrapeCategoryProducts:
                         span.find("img").attrs["data-zoom-image"]
                     )
             except AttributeError:
-                pics.append(
-                    bs.find("div", {"class": "product-picture"}).find(
-                        "a"
-                    ).attrs["href"]
-                )
+                try:
+                    pics.append(
+                        bs.find("div", {"class": "product-picture"}).find(
+                            "a"
+                        ).attrs["href"]
+                    )
+                except AttributeError:
+                    pics = []
 
             return pics
 
@@ -271,34 +274,40 @@ class ScrapeCategoryProducts:
             results=[]
         )
         for product_link in product_links:
-            print(product_link)
+            for pr in product_link["products"]:
 
-            html = requests.get(product_link).text
-            bs = BeautifulSoup(html, "html.parser")
+                print(pr)
 
-            timestamp = round(datetime.datetime.now().timestamp())
-            name = get_name()
-            art = get_art()
-            price = get_price()
-            currency = get_currency()
-            description = get_description()
-            parameters = get_parameters()
-            pictures = download_pictures()
-            language = get_language()
+                html = requests.get(pr).text
+                bs = BeautifulSoup(html, "html.parser")
 
-            result = dict(
-                name=name,
-                art=art,
-                price=price,
-                currency=currency,
-                description=description,
-                parameters=parameters,
-                pictures=pictures,
-                language=language
-            )
+                name = get_name()
+                art = get_art()
+                price = get_price()
+                currency = get_currency()
+                description = get_description()
+                parameters = get_parameters()
+                pictures = download_pictures()
+                language = get_language()
 
-            print(name)
+                result = dict(
+                    cat_id=product_link["cat_id"],
+                    name=name,
+                    art=art,
+                    price=price,
+                    currency=currency,
+                    description=description,
+                    parameters=parameters,
+                    pictures=pictures,
+                    language=language
+                )
 
-            results["results"].append(result)
+                print(name)
 
-            print("--- --- ---")
+                results["results"].append(result)
+
+                print("--- --- ---")
+
+        res = json.dumps(results)
+        with open("./results.json", "w+") as json_file:
+            json_file.write(res)
