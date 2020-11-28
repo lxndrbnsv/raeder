@@ -1,5 +1,6 @@
 import json
 
+import pymysql.cursors
 import requests
 from bs4 import BeautifulSoup
 
@@ -60,3 +61,22 @@ class ReadProducts:
             json_data = json.load(json_file)
 
         self.products = json_data
+
+
+class WriteProducts:
+    def __init__(self):
+        # Подключаемся к БД.
+        connection = pymysql.connect(
+            host="downlo04.mysql.tools",
+            user="downlo04_parseditems",
+            password="cu2%&52NzS",
+            db="downlo04_parseditems",
+            charset="utf8mb4",
+            cursorclass=pymysql.cursors.DictCursor
+        )
+
+        with connection.cursor() as cursor:
+            sql = "INSERT INTO parsed_products (id, name, art) VALUES (2, " \
+                  "'test2', 'test2') "
+            cursor.execute(sql)
+            connection.commit()

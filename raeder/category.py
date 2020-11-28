@@ -4,6 +4,8 @@ import datetime
 import requests
 from bs4 import BeautifulSoup
 
+from raeder.misc import GenerateRefCode
+
 
 class GetCategories:
     def __init__(self):
@@ -116,16 +118,20 @@ class ScrapeCategoryProducts:
             """Возвращает артикул товара."""
             return bs.find("input", {"id": "artid"}).attrs["value"]
 
+        def get_product_ref():
+            return GenerateRefCode().value
+
         def get_price():
             """Возвращает стоимость товара: стоимость
             со скидкой и старую цену."""
             product_price = bs.find("span", {"itemprop": "price"}).attrs[
                 "content"
-            ]
+            ].strip()
             try:
                 old_price = bs.find("p", {"class": "oldPrice"}).find(
                     "del"
-                ).get_text().replace(" €", "")
+                ).get_text().replace(" €", "").strip()
+
             except AttributeError:
                 old_price = None
 
@@ -153,7 +159,9 @@ class ScrapeCategoryProducts:
             # Данные о материале находятся в отдельном диве.
             material = bs.find("div", {"id": "material"}).get_text().strip()
 
-            rating = bs.find("div", {"id": "rating"}).get_text().replace("\n", " ")
+            rating = bs.find(
+                "div", {"id": "rating"}).get_text().replace("\n", " "
+                                                            )
 
             #  Объединяем все данные.
             desc = f"{text_1}\n{text_2}\n{material}\n{rating}"
@@ -184,35 +192,11 @@ class ScrapeCategoryProducts:
             except IndexError:
                 dimensions = None
             try:
-                height = product_text.split(
-                    "Höhe: ", 1
-                )[1].split("\n", 1)[0].split("cm", 1)[0].strip()
-            except IndexError:
-                height = None
-            try:
-                length = product_text.split(
-                    "Länge: ", 1
-                )[1].split("\n", 1)[0].split("cm", 1)[0].strip()
-            except IndexError:
-                length = None
-            try:
-                depth = product_text.split(
-                    "Tiefe: ", 1
-                )[1].split("\n", 1)[0].split("cm", 1)[0].strip()
-            except IndexError:
-                depth = None
-            try:
                 diameter = product_text.split(
                     "Durchmesser: ", 1
                 )[1].split("\n", 1)[0].split("cm", 1)[0].strip()
             except IndexError:
                 diameter = None
-            try:
-                thickness = product_text.split(
-                    "Stärke: ", 1
-                )[1].split("\n", 1)[0].split("cm", 1)[0].strip()
-            except IndexError:
-                thickness = None
             try:
                 volume = product_text.split(
                     "Füllmenge: ", 1
@@ -226,18 +210,68 @@ class ScrapeCategoryProducts:
                 material=material,
                 dimensions=dimensions,
                 chars=dict(
-                    height=height,
                     volume=volume,
-                    length=length,
-                    depth=depth,
                     diameter=diameter,
-                    thickness=thickness,
-
                 ),
                 color=color
             )
 
             return params
+
+        def get_height():
+            try:
+                dims = []
+                params_data = parameters["dimensions"].split("x", 3)
+                for pd in params_data:
+                    dims.append(float(pd.strip().replace(",", ".")))
+                dims.sort()
+                h = dims[-1]
+
+            except AttributeError:
+                h = None
+
+            if h is not None:
+                h = str(h)
+
+            return h
+
+        def get_length():
+            try:
+                dims = []
+                params_data = parameters["dimensions"].split("x", 3)
+                for pd in params_data:
+                    dims.append(float(pd.strip().replace(",", ".")))
+                dims.sort()
+                if len(dims) == 3:
+                    lngt = dims[1]
+                else:
+                    lngt = dims[0]
+            except AttributeError:
+                lngt = None
+
+            if lngt is not None:
+                lngt = str(lngt)
+
+            return lngt
+
+        def get_width():
+            try:
+                dims = []
+                params_data = parameters["dimensions"].split("x", 3)
+                for pd in params_data:
+                    dims.append(float(pd.strip().replace(",", ".")))
+                dims.sort()
+                if len(dims) == 3:
+                    w = dims[0]
+                else:
+                    w = None
+            except AttributeError:
+                w = None
+
+            if w is not None:
+                w = str(w)
+
+            return w
 
         def download_pictures():
             """Сохраняет изображения товара. Возвращает ссылку
@@ -273,7 +307,7 @@ class ScrapeCategoryProducts:
             updated=round(datetime.datetime.now().timestamp()),
             results=[]
         )
-        for product_link in product_links:
+        for product_link in product_links[1:]:
             for pr in product_link["products"]:
 
                 print(pr)
@@ -283,26 +317,34 @@ class ScrapeCategoryProducts:
 
                 name = get_name()
                 art = get_art()
+                product_ref = get_product_ref()
                 price = get_price()
                 currency = get_currency()
                 description = get_description()
                 parameters = get_parameters()
+                height = get_height()
+                length = get_length()
+                width = get_width()
                 pictures = download_pictures()
                 language = get_language()
 
                 result = dict(
+                    timestamp = round(datetime.datetime.now().timestamp()),
                     cat_id=product_link["cat_id"],
+                    url=product_link,
                     name=name,
                     art=art,
+                    product_ref=product_ref,
                     price=price,
                     currency=currency,
                     description=description,
                     parameters=parameters,
+                    height=height,
+                    length=length,
+                    width=width,
                     pictures=pictures,
                     language=language
                 )
-
-                print(name)
 
                 results["results"].append(result)
 
