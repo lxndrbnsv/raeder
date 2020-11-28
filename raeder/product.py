@@ -79,49 +79,10 @@ class WriteProducts:
             charset="utf8mb4",
             cursorclass=pymysql.cursors.DictCursor
         )
-        for r in results:
+        
+        for r in results["results"]:
             with connection.cursor() as cursor:
-                sql = "INSERT INTO parsed_products (" \
-                      " shop_id," \
-                      " product_ref," \
-                      " parsed," \
-                      " updated," \
-                      " url," \
-                      " name," \
-                      " art," \
-                      " old_price," \
-                      " current_price," \
-                      " currency," \
-                      " description," \
-                      " material," \
-                      " color," \
-                      " dimensions," \
-                      " length," \
-                      " height," \
-                      " width," \
-                      " volume," \
-                      " images," \
-                      " category" \
-                      f") VALUES ({r['results']['shop_id']}," \
-                      f"{r['results']['product_ref']}," \
-                      f"{round(datetime.datetime.now().timestamp())}," \
-                      f"{round(datetime.datetime.now().timestamp())}," \
-                      f"{r['results']['url']}," \
-                      f"{r['results']['name']}," \
-                      f"{r['results']['art']}," \
-                      f"{r['results']['price']['old_price']}," \
-                      f"{r['results']['price']['current_price']}," \
-                      f"{r['results']['currency']}," \
-                      f"{r['results']['description']}," \
-                      f"{r['results']['material']}," \
-                      f"{r['results']['color']}," \
-                      f"{r['results']['dimensions']}," \
-                      f"{r['results']['length']}," \
-                      f"{r['results']['height']}," \
-                      f"{r['results']['width']}," \
-                      f"{r['results']['volume']}," \
-                      f"{r['results']['images']}," \
-                      f"{r['cat_id']} " \
-                      "'test2', 'test2') "
+                sql = f"INSERT INTO parsed_products (product_ref, parsed, updated, url, name, art, old_price, current_price, currency, description, material, color, dimensions, length, height, width, volume, images, category) VALUES ({r['product_ref']}, {round(datetime.datetime.now().timestamp())}, {round(datetime.datetime.now().timestamp())}, {r['url']}, {r['name']}, {r['art']}, {r['price']['old_price']}, {r['price']['price']}, {r['currency']}, {r['description']}, {r['parameters']['material']}, {r['parameters']['color']}, {r['parameters']['dimensions']}, {r['length']}, {r['height']}, {r['width']}, {r['parameters']['chars']['volume']}, {r['pictures']}, {r['cat_id']})"
             cursor.execute(sql)
-            connection.commit()
+            break
+        connection.commit()

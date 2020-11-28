@@ -5,7 +5,7 @@ from raeder.misc import ReadDB
 
 if __name__ == "__main__":
     # GetProducts()
-    products = ReadProducts().products
+    # products = ReadProducts().products
     # ScrapeCategoryProducts(product_links=products)
     # AssignCategory()
-    # WriteProducts()
+    WriteProducts()
