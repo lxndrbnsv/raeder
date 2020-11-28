@@ -205,8 +205,9 @@ class ScrapeCategoryProducts:
                 )
             except IndexError:
                 dimensions = None
-            if "x" not in dimensions:
-                dimensions = None
+            if dimensions is not None:
+                if "x" not in dimensions:
+                    dimensions = None
             try:
                 diameter = (
                     product_text.split("Durchmesser: ", 1)[1]
