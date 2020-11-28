@@ -329,7 +329,8 @@ class ScrapeCategoryProducts:
                 language = get_language()
 
                 result = dict(
-                    timestamp = round(datetime.datetime.now().timestamp()),
+                    timestamp=round(datetime.datetime.now().timestamp()),
+                    shop_id="1",
                     cat_id=product_link["cat_id"],
                     url=product_link,
                     name=name,

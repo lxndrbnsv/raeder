@@ -1,4 +1,5 @@
 import json
+import datetime
 
 import pymysql.cursors
 import requests
@@ -64,7 +65,11 @@ class ReadProducts:
 
 
 class WriteProducts:
-    def __init__(self):
+    def __init__(self, data):
+
+        with open("./results.json", "r") as json_data:
+            results = json.load(json_data)
+
         # Подключаемся к БД.
         connection = pymysql.connect(
             host="downlo04.mysql.tools",
@@ -74,9 +79,49 @@ class WriteProducts:
             charset="utf8mb4",
             cursorclass=pymysql.cursors.DictCursor
         )
-
-        with connection.cursor() as cursor:
-            sql = "INSERT INTO parsed_products (id, name, art) VALUES (2, " \
-                  "'test2', 'test2') "
+        for r in results:
+            with connection.cursor() as cursor:
+                sql = "INSERT INTO parsed_products (" \
+                      " shop_id," \
+                      " product_ref," \
+                      " parsed," \
+                      " updated," \
+                      " url," \
+                      " name," \
+                      " art," \
+                      " old_price," \
+                      " current_price," \
+                      " currency," \
+                      " description," \
+                      " material," \
+                      " color," \
+                      " dimensions," \
+                      " length," \
+                      " height," \
+                      " width," \
+                      " volume," \
+                      " images," \
+                      " category" \
+                      f") VALUES ({r['results']['shop_id']}," \
+                      f"{r['results']['product_ref']}," \
+                      f"{round(datetime.datetime.now().timestamp())}," \
+                      f"{round(datetime.datetime.now().timestamp())}," \
+                      f"{r['results']['url']}," \
+                      f"{r['results']['name']}," \
+                      f"{r['results']['art']}," \
+                      f"{r['results']['price']['old_price']}," \
+                      f"{r['results']['price']['current_price']}," \
+                      f"{r['results']['currency']}," \
+                      f"{r['results']['description']}," \
+                      f"{r['results']['material']}," \
+                      f"{r['results']['color']}," \
+                      f"{r['results']['dimensions']}," \
+                      f"{r['results']['length']}," \
+                      f"{r['results']['height']}," \
+                      f"{r['results']['width']}," \
+                      f"{r['results']['volume']}," \
+                      f"{r['results']['images']}," \
+                      f"{r['cat_id']} " \
+                      "'test2', 'test2') "
             cursor.execute(sql)
             connection.commit()
