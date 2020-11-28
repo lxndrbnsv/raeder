@@ -17,10 +17,7 @@ class GetProducts:
         categories = ReadCategories().categories
         for category in categories:
             print("*** *** ***")
-            cat_data = {
-                "category": category,
-                "products": []
-            }
+            cat_data = {"category": category, "products": []}
             pages = [category]
             for page in pages:
                 print(f"Loading page:\n{page}")
@@ -28,9 +25,7 @@ class GetProducts:
                 bs = BeautifulSoup(html, "html.parser")
 
                 # Ссылка на товар находится внутри блока с изображением.
-                link_tags = bs.find_all(
-                    "a", {"class": "sliderHover"}
-                )
+                link_tags = bs.find_all("a", {"class": "sliderHover"})
 
                 for lt in link_tags:
                     if lt.attrs["href"] not in cat_data["products"]:
@@ -77,12 +72,39 @@ class WriteProducts:
             password="cu2%&52NzS",
             db="downlo04_parseditems",
             charset="utf8mb4",
-            cursorclass=pymysql.cursors.DictCursor
+            cursorclass=pymysql.cursors.DictCursor,
         )
-        
-        for r in results["results"]:
-            with connection.cursor() as cursor:
-                sql = f"INSERT INTO parsed_products (product_ref, parsed, updated, url, name, art, old_price, current_price, currency, description, material, color, dimensions, length, height, width, volume, images, category) VALUES ({r['product_ref']}, {round(datetime.datetime.now().timestamp())}, {round(datetime.datetime.now().timestamp())}, {r['url']}, {r['name']}, {r['art']}, {r['price']['old_price']}, {r['price']['price']}, {r['currency']}, {r['description']}, {r['parameters']['material']}, {r['parameters']['color']}, {r['parameters']['dimensions']}, {r['length']}, {r['height']}, {r['width']}, {r['parameters']['chars']['volume']}, {r['pictures']}, {r['cat_id']})"
-            cursor.execute(sql)
-            break
-        connection.commit()
+
+        try:
+            for r in results["results"][16:40]:
+                with connection.cursor() as cursor:
+                    sql = "INSERT INTO parsed_products " \
+                          "(shop_id, product_ref, parsed, updated, url," \
+                          " name," \
+                          "brand, art," \
+                          " old_price, current_price, currency, " \
+                          "description, material, color, dimensions, " \
+                          "length, height, width, volume, images, " \
+                          "category) " \
+                          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                          "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+                    cursor.execute(
+                        sql, (
+                            1, r["product_ref"],
+                            round(datetime.datetime.now().timestamp()),
+                            round(datetime.datetime.now().timestamp()),
+                            "https://some.url", r["name"],
+                            None, r["art"], r["price"]["old_price"],
+                            r["price"]["price"], r["currency"],
+                            r["description"], r["parameters"]["material"],
+                            r["parameters"]["color"],
+                            r["parameters"]["dimensions"], r["length"],
+                            r["height"], r["width"],
+                            r["parameters"]["chars"]["volume"],
+                            ", ".join(r["pictures"]), r["cat_id"]
+                        )
+                    )
+                    connection.commit()
+        finally:
+            connection.close()

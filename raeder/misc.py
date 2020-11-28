@@ -45,13 +45,15 @@ class ReadDB:
             password="cu2%&52NzS",
             db="downlo04_parseditems",
             charset="utf8mb4",
-            cursorclass=pymysql.cursors.DictCursor
+            cursorclass=pymysql.cursors.DictCursor,
         )
 
         try:
             with connection.cursor() as cursor:
-                sql = "SELECT product_ref FROM parsed_products WHERE " \
-                      "product_ref=%s "
+                sql = (
+                    "SELECT product_ref FROM parsed_products WHERE "
+                    "product_ref=%s "
+                )
                 cursor.execute(sql, value)
                 result = cursor.fetchone()
 

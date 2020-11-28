@@ -125,13 +125,17 @@ class ScrapeCategoryProducts:
         def get_price():
             """Возвращает стоимость товара: стоимость
             со скидкой и старую цену."""
-            product_price = bs.find("span", {"itemprop": "price"}).attrs[
-                "content"
-            ].strip()
+            product_price = (
+                bs.find("span", {"itemprop": "price"}).attrs["content"].strip()
+            )
             try:
-                old_price = bs.find("p", {"class": "oldPrice"}).find(
-                    "del"
-                ).get_text().replace(" €", "").strip()
+                old_price = (
+                    bs.find("p", {"class": "oldPrice"})
+                    .find("del")
+                    .get_text()
+                    .replace(" €", "")
+                    .strip()
+                )
 
             except AttributeError:
                 old_price = None
@@ -148,9 +152,11 @@ class ScrapeCategoryProducts:
             # Тег, внутри которого содержится первая часть характеристик
             # товара, является следующим по отношению к родительскому тегу
             # тега input, в котором расположен артикул.
-            description_p = bs.find(
-                "input", {"id": "artid"}
-            ).find_parent("p").find_next_sibling("p")
+            description_p = (
+                bs.find("input", {"id": "artid"})
+                .find_parent("p")
+                .find_next_sibling("p")
+            )
 
             # Разбиваем на две части: до br и после. Это нужно для грамотного
             # форматирования текста.
@@ -160,9 +166,9 @@ class ScrapeCategoryProducts:
             # Данные о материале находятся в отдельном диве.
             material = bs.find("div", {"id": "material"}).get_text().strip()
 
-            rating = bs.find(
-                "div", {"id": "rating"}).get_text().replace("\n", " "
-                                                            )
+            rating = (
+                bs.find("div", {"id": "rating"}).get_text().replace("\n", " ")
+            )
 
             #  Объединяем все данные.
             desc = f"{text_1}\n{text_2}\n{material}\n{rating}"
@@ -175,35 +181,49 @@ class ScrapeCategoryProducts:
             product_text = description
 
             try:
-                material = product_text.split(
-                    "Material: ", 1
-                )[1].split("\n", 1)[0].strip()
+                material = (
+                    product_text.split("Material: ", 1)[1]
+                    .split("\n", 1)[0]
+                    .strip()
+                )
             except IndexError:
                 material = None
             try:
-                color = product_text.split(
-                    "Farbe: ", 1
-                )[1].split("\n", 1)[0].strip()
+                color = (
+                    product_text.split("Farbe: ", 1)[1]
+                    .split("\n", 1)[0]
+                    .strip()
+                )
             except IndexError:
                 color = None
             try:
-                dimensions = product_text.split(
-                    "Maße: ", 1
-                )[1].split("\n", 1)[0].split("cm", 1)[0].strip()
+                dimensions = (
+                    product_text.split("Maße: ", 1)[1]
+                    .split("\n", 1)[0]
+                    .split("cm", 1)[0]
+                    .strip()
+                )
             except IndexError:
                 dimensions = None
+            if "x" not in dimensions:
+                dimensions = None
             try:
-                diameter = product_text.split(
-                    "Durchmesser: ", 1
-                )[1].split("\n", 1)[0].split("cm", 1)[0].strip()
+                diameter = (
+                    product_text.split("Durchmesser: ", 1)[1]
+                    .split("\n", 1)[0]
+                    .split("cm", 1)[0]
+                    .strip()
+                )
             except IndexError:
                 diameter = None
             try:
-                volume = product_text.split(
-                    "Füllmenge: ", 1
-                )[1].split("\n", 1)[0].split("ml", 1)[0].replace(
-                    "ca.", ""
-                ).strip()
+                volume = (
+                    product_text.split("Füllmenge: ", 1)[1]
+                    .split("\n", 1)[0]
+                    .split("ml", 1)[0]
+                    .replace("ca.", "")
+                    .strip()
+                )
             except IndexError:
                 volume = None
 
@@ -214,19 +234,25 @@ class ScrapeCategoryProducts:
                     volume=volume,
                     diameter=diameter,
                 ),
-                color=color
+                color=color,
             )
 
             return params
 
         def get_height():
-            non_decimal = re.compile(r'[^\d.]+')
+            non_decimal = re.compile(r"[^\d.]+")
             try:
                 dims = []
                 params_data = parameters["dimensions"].split("x", 3)
                 for pd in params_data:
                     try:
-                        dims.append(float(non_decimal.sub("", pd.strip().replace(",", "."))))
+                        dims.append(
+                            float(
+                                non_decimal.sub(
+                                    "", pd.strip().replace(",", ".")
+                                )
+                            )
+                        )
                     except ValueError:
                         pass
                 dims.sort()
@@ -244,13 +270,19 @@ class ScrapeCategoryProducts:
             return h
 
         def get_length():
-            non_decimal = re.compile(r'[^\d.]+')
+            non_decimal = re.compile(r"[^\d.]+")
             try:
                 dims = []
                 params_data = parameters["dimensions"].split("x", 3)
                 for pd in params_data:
                     try:
-                        dims.append(float(non_decimal.sub("", pd.strip().replace(",", "."))))
+                        dims.append(
+                            float(
+                                non_decimal.sub(
+                                    "", pd.strip().replace(",", ".")
+                                )
+                            )
+                        )
                     except ValueError:
                         pass
                 dims.sort()
@@ -270,13 +302,19 @@ class ScrapeCategoryProducts:
             return lngt
 
         def get_width():
-            non_decimal = re.compile(r'[^\d.]+')
+            non_decimal = re.compile(r"[^\d.]+")
             try:
                 dims = []
                 params_data = parameters["dimensions"].split("x", 3)
                 for pd in params_data:
                     try:
-                        dims.append(float(non_decimal.sub("", pd.strip().replace(",", "."))))
+                        dims.append(
+                            float(
+                                non_decimal.sub(
+                                    "", pd.strip().replace(",", ".")
+                                )
+                            )
+                        )
                     except ValueError:
                         pass
                 dims.sort()
@@ -302,15 +340,13 @@ class ScrapeCategoryProducts:
             try:
                 pics_div = bs.find("div", {"class": "otherPictures"})
                 for span in pics_div.find_all("span", {"class": "artIcon"}):
-                    pics.append(
-                        span.find("img").attrs["data-zoom-image"]
-                    )
+                    pics.append(span.find("img").attrs["data-zoom-image"])
             except AttributeError:
                 try:
                     pics.append(
-                        bs.find("div", {"class": "product-picture"}).find(
-                            "a"
-                        ).attrs["href"]
+                        bs.find("div", {"class": "product-picture"})
+                        .find("a")
+                        .attrs["href"]
                     )
                 except AttributeError:
                     pics = []
@@ -321,10 +357,11 @@ class ScrapeCategoryProducts:
             """Возвращает язык, на котором опубликована информация
             о товаре."""
             return "DE"
+
         results = dict(
             first_parsed=round(datetime.datetime.now().timestamp()),
             updated=round(datetime.datetime.now().timestamp()),
-            results=[]
+            results=[],
         )
         for product_link in product_links[1:]:
             for pr in product_link["products"]:
@@ -348,10 +385,10 @@ class ScrapeCategoryProducts:
                 language = get_language()
 
                 result = dict(
-                    shop_id = "1",
-                    timestamp = round(datetime.datetime.now().timestamp()),
+                    shop_id="1",
+                    timestamp=round(datetime.datetime.now().timestamp()),
                     cat_id=product_link["cat_id"],
-                    url=product_link,
+                    url=pr,
                     name=name,
                     art=art,
                     product_ref=product_ref,
@@ -363,7 +400,7 @@ class ScrapeCategoryProducts:
                     length=length,
                     width=width,
                     pictures=pictures,
-                    language=language
+                    language=language,
                 )
 
                 results["results"].append(result)
