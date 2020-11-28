@@ -1,3 +1,4 @@
+import re
 import json
 import datetime
 
@@ -219,13 +220,20 @@ class ScrapeCategoryProducts:
             return params
 
         def get_height():
+            non_decimal = re.compile(r'[^\d.]+')
             try:
                 dims = []
                 params_data = parameters["dimensions"].split("x", 3)
                 for pd in params_data:
-                    dims.append(float(pd.strip().replace(",", ".")))
+                    try:
+                        dims.append(float(non_decimal.sub("", pd.strip().replace(",", "."))))
+                    except ValueError:
+                        pass
                 dims.sort()
-                h = dims[-1]
+                try:
+                    h = dims[-1]
+                except IndexError:
+                    h = None
 
             except AttributeError:
                 h = None
@@ -236,16 +244,23 @@ class ScrapeCategoryProducts:
             return h
 
         def get_length():
+            non_decimal = re.compile(r'[^\d.]+')
             try:
                 dims = []
                 params_data = parameters["dimensions"].split("x", 3)
                 for pd in params_data:
-                    dims.append(float(pd.strip().replace(",", ".")))
+                    try:
+                        dims.append(float(non_decimal.sub("", pd.strip().replace(",", "."))))
+                    except ValueError:
+                        pass
                 dims.sort()
                 if len(dims) == 3:
                     lngt = dims[1]
                 else:
-                    lngt = dims[0]
+                    try:
+                        lngt = dims[0]
+                    except IndexError:
+                        lngt = None
             except AttributeError:
                 lngt = None
 
@@ -255,11 +270,15 @@ class ScrapeCategoryProducts:
             return lngt
 
         def get_width():
+            non_decimal = re.compile(r'[^\d.]+')
             try:
                 dims = []
                 params_data = parameters["dimensions"].split("x", 3)
                 for pd in params_data:
-                    dims.append(float(pd.strip().replace(",", ".")))
+                    try:
+                        dims.append(float(non_decimal.sub("", pd.strip().replace(",", "."))))
+                    except ValueError:
+                        pass
                 dims.sort()
                 if len(dims) == 3:
                     w = dims[0]
@@ -329,8 +348,7 @@ class ScrapeCategoryProducts:
                 language = get_language()
 
                 result = dict(
-                    timestamp=round(datetime.datetime.now().timestamp()),
-                    shop_id="1",
+                    timestamp = round(datetime.datetime.now().timestamp()),
                     cat_id=product_link["cat_id"],
                     url=product_link,
                     name=name,
