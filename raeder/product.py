@@ -65,7 +65,7 @@ class ReadProducts:
 
 
 class WriteProducts:
-    def __init__(self, data):
+    def __init__(self):
 
         with open("./results.json", "r") as json_data:
             results = json.load(json_data)
