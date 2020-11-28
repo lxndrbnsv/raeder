@@ -21,7 +21,7 @@ class GenerateRefCode:
             ref_code = "".join(
                 random.choice(letters + digits) for __ in range(char_num)
             )
-            while ReadDB(ref_code).result is not None:
+            while ref_code in existing_codes:
                 char_num = char_num + 1
                 ref_code = "".join(
                     random.choice(letters + digits) for __ in range(char_num)
