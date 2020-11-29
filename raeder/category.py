@@ -111,6 +111,17 @@ class ScrapeCategoryProducts:
     def __init__(self, product_links):
         """Сбор данных товаров, принадлежащих к определенной категории."""
 
+        def if_available():
+            additional_info_div = bs.find(
+                "div", {"class": "additionalInfo clear"}
+            )
+            if additional_info_div.find(
+                    "span", {"class": "notOnStock"}
+            ) is not None:
+                return 0
+            else:
+                return 1
+
         def get_name():
             """Возвращает название товара."""
             return bs.find("h1").get_text().strip()
@@ -354,6 +365,14 @@ class ScrapeCategoryProducts:
 
             return pics
 
+        def manage_pics():
+            if len(pictures) == 1:
+                return dict(main_pic=pictures[0], additional_pics=[])
+            if len(pictures) >= 2:
+                return dict(main_pic=pictures[0], additional_pics=pictures[1:])
+            if len(pictures) == 0:
+                return dict(main_pic=None, additional_pics=None)
+
         def get_language():
             """Возвращает язык, на котором опубликована информация
             о товаре."""
@@ -372,6 +391,7 @@ class ScrapeCategoryProducts:
                 html = requests.get(pr).text
                 bs = BeautifulSoup(html, "html.parser")
 
+                available = if_available()
                 name = get_name()
                 art = get_art()
                 product_ref = get_product_ref()
@@ -383,10 +403,12 @@ class ScrapeCategoryProducts:
                 length = get_length()
                 width = get_width()
                 pictures = download_pictures()
+                pic_dict = manage_pics()
                 language = get_language()
 
                 result = dict(
                     shop_id="1",
+                    available = available,
                     timestamp=round(datetime.datetime.now().timestamp()),
                     cat_id=product_link["cat_id"],
                     url=pr,
@@ -401,6 +423,8 @@ class ScrapeCategoryProducts:
                     length=length,
                     width=width,
                     pictures=pictures,
+                    img_main=pic_dict["main_pic"],
+                    img_additional=pic_dict["additional_pics"],
                     language=language,
                 )
 

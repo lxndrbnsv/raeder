@@ -76,25 +76,27 @@ class WriteProducts:
         )
 
         try:
-            for r in results["results"][16:40]:
+            for r in results["results"][4:6]:
                 with connection.cursor() as cursor:
                     sql = "INSERT INTO parsed_products " \
                           "(shop_id, product_ref, parsed, updated, url," \
-                          " name," \
+                          " name, available, " \
                           "brand, art," \
                           " old_price, current_price, currency, " \
                           "description, material, color, dimensions, " \
                           "length, height, width, volume, images, " \
+                          "img_main, img_additional,  " \
                           "category) " \
                           "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
-                          "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                          "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                          " %s)"
 
                     cursor.execute(
                         sql, (
                             1, r["product_ref"],
                             round(datetime.datetime.now().timestamp()),
                             round(datetime.datetime.now().timestamp()),
-                            "https://some.url", r["name"],
+                            r["url"], r["name"],
                             None, r["art"], r["price"]["old_price"],
                             r["price"]["price"], r["currency"],
                             r["description"], r["parameters"]["material"],
@@ -102,7 +104,9 @@ class WriteProducts:
                             r["parameters"]["dimensions"], r["length"],
                             r["height"], r["width"],
                             r["parameters"]["chars"]["volume"],
-                            ", ".join(r["pictures"]), r["cat_id"]
+                            ", ".join(r["pictures"]), r["img_main"], ", ".join(
+                                r["img_additional"]
+                            ), r["cat_id"]
                         )
                     )
                     connection.commit()
