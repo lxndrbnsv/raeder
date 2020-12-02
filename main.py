@@ -1,8 +1,13 @@
+import sys
 import argparse
+
 from raeder.product import ReadProducts, GetProducts, WriteProducts, UpdateProducts
 from raeder.category import ScrapeCategoryProducts, AssignCategory, UpdateFetchedProducts
 from raeder.misc import ReadLinksFromDB
 
+
+sys.stdout = open("logs.log", "w2")
+sys.stderr = open("logs.log", "w2")
 
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group(required=True)
