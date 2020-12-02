@@ -79,7 +79,7 @@ class WriteProducts:
         )
 
         try:
-            for r in results["results"][4:6]:
+            for r in results["results"]:
                 with connection.cursor() as cursor:
                     sql = "INSERT INTO parsed_products " \
                           "(shop_id, product_ref, parsed , updated, url," \

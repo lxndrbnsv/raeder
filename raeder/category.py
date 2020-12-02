@@ -470,7 +470,7 @@ class ScrapeCategoryProducts:
             updated=round(datetime.datetime.now().timestamp()),
             results=[],
         )
-        for product_link in product_links[1:]:
+        for product_link in product_links:
             for pr in product_link["products"]:
 
                 print(pr)
