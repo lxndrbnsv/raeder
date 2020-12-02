@@ -480,7 +480,7 @@ class ScrapeCategoryProducts:
                 bs = BeautifulSoup(html, "html.parser")
 
                 available = if_available()
-                name = get_name().replace('"', '')
+                name = get_name()
                 art = get_art()
                 product_ref = get_product_ref()
                 price = get_price()
