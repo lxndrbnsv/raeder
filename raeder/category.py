@@ -407,18 +407,18 @@ class ScrapeCategoryProducts:
             return {"pics_all": pics, "pic_names": pic_names}
 
         def manage_pics():
+            additional_pic_urls = []
+            for p in pictures["pic_names"]:
+                additional_pic_urls.append(
+                    f"http://3.127.139.108/api/images/{shop_id}/{p}"
+                )
             if len(pictures["pics_all"]) == 1:
-                additional_pic_urls = []
-                for p in pictures["pic_names"]:
-                    additional_pic_urls.append(
-                        f"http://3.127.139.108/api/images/{shop_id}/{p}"
-                    )
                 return dict(
                     main_pic=pictures["pics_all"][0],
                     additional_pics=[],
                     main_pic_url=f"http://3.127.139.108/api/images/{shop_id}/"
                                  f"{pictures['pic_names'][0]}",
-                    additional_pic_urls=[]
+                    additional_pic_urls=additional_pic_urls
                 )
             if len(pictures["pics_all"]) >= 2:
                 return dict(
@@ -426,14 +426,14 @@ class ScrapeCategoryProducts:
                     additional_pics=pictures["pics_all"][1:],
                     main_pic_url=f"http://3.127.139.108/api/images/{shop_id}/"
                                  f"{pictures['pic_names'][0]}",
-                    additional_pic_urls=[]
+                    additional_pic_urls=additional_pic_urls
                 )
             if len(pictures["pics_all"]) == 0:
                 return dict(
                     main_pic=[],
                     additional_pics=[],
                     main_pic_url=[],
-                    additional_pic_urls=[]
+                    additional_pic_urls=additional_pic_urls
                 )
 
         def get_language():
@@ -480,7 +480,7 @@ class ScrapeCategoryProducts:
                 bs = BeautifulSoup(html, "html.parser")
 
                 available = if_available()
-                name = get_name()
+                name = get_name().replace('"', '')
                 art = get_art()
                 product_ref = get_product_ref()
                 price = get_price()
