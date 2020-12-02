@@ -6,8 +6,8 @@ from raeder.category import ScrapeCategoryProducts, AssignCategory, UpdateFetche
 from raeder.misc import ReadLinksFromDB
 
 
-sys.stdout = open("logs.log", "w2")
-sys.stderr = open("logs.log", "w2")
+sys.stdout = open("logs.log", "w")
+sys.stderr = open("logs.log", "w")
 
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group(required=True)
