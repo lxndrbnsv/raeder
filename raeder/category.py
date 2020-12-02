@@ -401,8 +401,6 @@ class ScrapeCategoryProducts:
                 ).write(r.content)
                 pic_names.append(f"{image_name}.jpg")
 
-            if len(pic_names) == 0:
-                pic_names = None
 
             return {"pics_all": pics, "pic_names": pic_names}
 
