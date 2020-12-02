@@ -394,7 +394,6 @@ class ScrapeCategoryProducts:
 
             for pic in pics:
                 r = requests.get(pic, allow_redirects=True)
-                print(r.content)
                 open(
                     f"./files/pics/{shop_id}/{image_name}.jpg", "wb"
                 ).write(r.content)

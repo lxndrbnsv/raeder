@@ -27,7 +27,7 @@ class GenerateRefCode:
                     random.choice(digits) for __ in range(char_num)
                 )
 
-            return ref_code
+            return int(ref_code)
 
         value = generate()
         with open("./files/ref_codes.txt", "a+") as text_file:
