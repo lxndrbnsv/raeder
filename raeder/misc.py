@@ -51,11 +51,11 @@ class ReadDB:
         try:
             with connection.cursor() as cursor:
                 sql = (
-                    "SELECT product_ref FROM parsed_products WHERE "
-                    "product_ref=%s "
+                    "SELECT * FROM parsed_products WHERE "
+                    "shop_id LIKE %s "
                 )
                 cursor.execute(sql, value)
-                result = cursor.fetchone()
+                result = cursor.fetchall()
 
         finally:
             connection.close()
@@ -78,3 +78,32 @@ class GenerateName:
         value = generate()
 
         self.value = value
+
+
+class ReadLinksFromDB:
+    def __init__(self):
+        links = []
+        # Подключаемся к БД.
+        connection = pymysql.connect(
+            host="downlo04.mysql.tools",
+            user="downlo04_parseditems",
+            password="cu2%&52NzS",
+            db="downlo04_parseditems",
+            charset="utf8mb4",
+            cursorclass=pymysql.cursors.DictCursor,
+        )
+
+        try:
+            with connection.cursor() as cursor:
+                sql = (
+                    "SELECT * FROM parsed_products WHERE "
+                    "shop_id=1"
+                )
+                cursor.execute(sql)
+                result = cursor.fetchall()
+
+        finally:
+            connection.close()
+        for r in result:
+            links.append(r["url"])
+        self.links = links

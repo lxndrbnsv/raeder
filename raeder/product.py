@@ -1,4 +1,3 @@
-import time
 import json
 import datetime
 
@@ -80,7 +79,6 @@ class WriteProducts:
 
         try:
             for r in results["results"]:
-                print(", ".join(r["img_additional_url"])
                 try:
                     with connection.cursor() as cursor:
                         sql = "INSERT INTO parsed_products " \
@@ -91,10 +89,11 @@ class WriteProducts:
                             "description, material, color, dimensions, " \
                             "length, height, width, volume, images, " \
                             "img_main, img_additional,  " \
-                            "category, attr_other, image_main_url, image_additional_url) " \
+                            "category, attr_other, " \
+                            "image_main_url, image_additional_url) " \
                             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
-                            "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
-                            " %s, %s, %s, %s)"
+                            "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "\
+                            "%s, %s, %s, %s, %s)"
 
                         cursor.execute(
                             sql, (
@@ -109,11 +108,52 @@ class WriteProducts:
                                 r["parameters"]["dimensions"], r["length"],
                                 r["height"], r["width"],
                                 r["parameters"]["chars"]["volume"],
-                                ", ".join(r["pictures"]["pics_all"]), r["img_main"], ", ".join(
+                                ", ".join(r["pictures"]["pics_all"]),
+                                r["img_main"], ", ".join(
                                     r["img_additional"]
                                 ), r["cat_id"], r["additional_attrs"],
-                                r["img_main_url"], ", ".join(r["img_additional_url"])
+                                r["img_main_url"],
+                                ", ".join(r["img_additional_url"])
                             ),
+                        )
+                        connection.commit()
+                except Exception:
+                    pass
+        finally:
+            connection.close()
+
+
+class UpdateProducts:
+    def __init__(self):
+
+        ts = datetime.datetime.now()
+
+        with open("./updates.json", "r") as json_data:
+            results = json.load(json_data)
+
+        # Подключаемся к БД.
+        connection = pymysql.connect(
+            host="downlo04.mysql.tools",
+            user="downlo04_parseditems",
+            password="cu2%&52NzS",
+            db="downlo04_parseditems",
+            charset="utf8mb4",
+            cursorclass=pymysql.cursors.DictCursor,
+        )
+
+        try:
+            for r in results["results"]:
+                try:
+                    with connection.cursor() as cursor:
+                        cursor.execute(sql, r["url"])
+                        sql = "UPDATE parsed_products SET " \
+                            "(updated, available, old_price, current_price) " \
+                            "VALUES (%s, %s, %s, %s) where url=%s"
+
+                        cursor.execute(
+                            sql, (
+                                ts, r["available"], r["price"]["old_price"],
+                            )
                         )
                         connection.commit()
                 except Exception:

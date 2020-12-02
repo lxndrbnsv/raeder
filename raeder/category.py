@@ -519,8 +519,6 @@ class ScrapeCategoryProducts:
                         additional_attrs=get_additional_attrs()
                     )
 
-                    print(pic_dict["additional_pic_urls"])
-
                     results["results"].append(result)
 
                     print("--- --- ---")
@@ -529,4 +527,77 @@ class ScrapeCategoryProducts:
 
         res = json.dumps(results)
         with open("./results.json", "w+") as json_file:
+            json_file.write(res)
+
+
+class UpdateFetchedProducts:
+    def __init__(self, links):
+        """Сбор данных товаров, принадлежащих к определенной категории."""
+
+        def if_available():
+            additional_info_div = bs.find(
+                "div", {"class": "additionalInfo clear"}
+            )
+            if additional_info_div.find(
+                    "span", {"class": "notOnStock"}
+            ) is not None:
+                return 0
+            else:
+                return 1
+
+        def get_price():
+            """Возвращает стоимость товара: стоимость
+            со скидкой и старую цену."""
+            product_price = (
+                bs.find("span", {"itemprop": "price"}).attrs["content"].strip()
+            )
+            try:
+                old_price = (
+                    bs.find("p", {"class": "oldPrice"})
+                    .find("del")
+                    .get_text()
+                    .replace(" €", "")
+                    .strip()
+                )
+
+            except AttributeError:
+                old_price = None
+
+            price_data = dict(price=product_price, old_price=old_price)
+            return price_data
+
+
+        results = dict(
+            first_parsed=round(datetime.datetime.now().timestamp()),
+            updated=round(datetime.datetime.now().timestamp()),
+            results=[],
+        )
+        for product_link in links:
+
+            print(product_link)
+
+            html = requests.get(product_link).text
+            bs = BeautifulSoup(html, "html.parser")
+
+            available = if_available()
+            price = get_price()
+            
+            try:
+                result = dict(
+                    available=available,
+                    price=price,
+                )
+
+                results["results"].append(result)
+
+                print("--- --- ---")
+            except AttributeError:
+                result = dict(
+                    available=5,
+                    price=dict(price="0", old_price="0"),
+                )
+                results["results"].append(result)
+
+        res = json.dumps(results)
+        with open("./updates.json", "w+") as json_file:
             json_file.write(res)
