@@ -80,39 +80,43 @@ class WriteProducts:
 
         try:
             for r in results["results"]:
-                with connection.cursor() as cursor:
-                    sql = "INSERT INTO parsed_products " \
-                          "(shop_id, product_ref, parsed , updated, url," \
-                          " name, available, " \
-                          "brand, art," \
-                          " old_price, current_price, currency, " \
-                          "description, material, color, dimensions, " \
-                          "length, height, width, volume, images, " \
-                          "img_main, img_additional,  " \
-                          "category, attr_other, image_main_url, image_additional_url) " \
-                          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
-                          "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
-                          " %s, %s, %s, %s)"
+                print(", ".join(r["img_additional_url"])
+                try:
+                    with connection.cursor() as cursor:
+                        sql = "INSERT INTO parsed_products " \
+                            "(shop_id, product_ref, parsed , updated, url," \
+                            " name, available, " \
+                            "brand, art," \
+                            " old_price, current_price, currency, " \
+                            "description, material, color, dimensions, " \
+                            "length, height, width, volume, images, " \
+                            "img_main, img_additional,  " \
+                            "category, attr_other, image_main_url, image_additional_url) " \
+                            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                            "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                            " %s, %s, %s, %s)"
 
-                    cursor.execute(
-                        sql, (
-                            1, r["product_ref"],
-                            ts,
-                            ts,
-                            r["url"], r["name"], r["available"],
-                            None, r["art"], r["price"]["old_price"],
-                            r["price"]["price"], r["currency"],
-                            r["description"], r["parameters"]["material"],
-                            r["parameters"]["color"],
-                            r["parameters"]["dimensions"], r["length"],
-                            r["height"], r["width"],
-                            r["parameters"]["chars"]["volume"],
-                            ", ".join(r["pictures"]["pics_all"]), r["img_main"], ", ".join(
-                                r["img_additional"]
-                            ), r["cat_id"], r["additional_attrs"],
-                            r["img_main_url"], ", ".join(r["img_additional_url"])
-                        ),
-                    )
-                    connection.commit()
+                        cursor.execute(
+                            sql, (
+                                1, r["product_ref"],
+                                ts,
+                                ts,
+                                r["url"], r["name"], r["available"],
+                                None, r["art"], r["price"]["old_price"],
+                                r["price"]["price"], r["currency"],
+                                r["description"], r["parameters"]["material"],
+                                r["parameters"]["color"],
+                                r["parameters"]["dimensions"], r["length"],
+                                r["height"], r["width"],
+                                r["parameters"]["chars"]["volume"],
+                                ", ".join(r["pictures"]["pics_all"]), r["img_main"], ", ".join(
+                                    r["img_additional"]
+                                ), r["cat_id"], r["additional_attrs"],
+                                r["img_main_url"], ", ".join(r["img_additional_url"])
+                            ),
+                        )
+                        connection.commit()
+                except Exception:
+                    pass
         finally:
             connection.close()

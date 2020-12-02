@@ -519,6 +519,8 @@ class ScrapeCategoryProducts:
                         additional_attrs=get_additional_attrs()
                     )
 
+                    print(pic_dict["additional_pic_urls"])
+
                     results["results"].append(result)
 
                     print("--- --- ---")
