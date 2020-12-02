@@ -1,11 +1,12 @@
 import re
+import os
 import json
 import datetime
 
 import requests
 from bs4 import BeautifulSoup
 
-from raeder.misc import GenerateRefCode
+from raeder.misc import GenerateRefCode, GenerateName
 
 
 class GetCategories:
@@ -238,6 +239,18 @@ class ScrapeCategoryProducts:
                 )
             except IndexError:
                 volume = None
+            try:
+                hgt = product_text.split(
+                    "Höhe: ", 1
+                )[1].split("\n", 1)[0].split("cm", 1)[0].strip()
+            except IndexError:
+                hgt = None
+            try:
+                lgt = product_text.split(
+                    "Länge: ", 1
+                )[1].split("\n", 1)[0].split("cm", 1)[0].strip()
+            except IndexError:
+                lgt = None
 
             params = dict(
                 material=material,
@@ -245,6 +258,8 @@ class ScrapeCategoryProducts:
                 chars=dict(
                     volume=volume,
                     diameter=diameter,
+                    add_hgt=hgt,
+                    add_lgt=lgt,
                 ),
                 color=color,
             )
@@ -363,6 +378,27 @@ class ScrapeCategoryProducts:
                 except AttributeError:
                     pics = []
 
+            if not os.path.exists(f"./files/pics/{str(shop_id)}/"):
+                os.makedirs(f"./files/pics/{str(shop_id)}/")
+
+            image_files = os.listdir(f"./files/pics/{str(shop_id)}/")
+            image_names = []
+            for i in image_files:
+                image_names.append(i.split(".", 1)[0])
+
+            char_num = 1
+            image_name = GenerateName(charnum=char_num).value
+            while image_names in image_names:
+                char_num = char_num + 1
+                image_name = GenerateName(charnum=char_num).value
+
+            for pic in pics:
+                r = requests.get(pic, allow_redirects=True)
+                print(r.content)
+                open(
+                    f"./files/{shop_id}/{image_name}.jpg", "wb"
+                ).write(r.content)
+
             return pics
 
         def manage_pics():
@@ -378,6 +414,30 @@ class ScrapeCategoryProducts:
             о товаре."""
             return "DE"
 
+        def get_additional_attrs():
+            data = parameters
+            additional_params = []
+            if data["chars"]["diameter"] is not None:
+                dmtr = data["chars"]["diameter"]
+                additional_params.append(
+                    "Diameter:" + dmtr
+                )
+            if data["chars"]["add_hgt"] is not None:
+                hgt = data["chars"]["add_hgt"]
+                additional_params.append(
+                    "Height:" + hgt
+                )
+            if data["chars"]["add_lgt"] is not None:
+                lgt = data["chars"]["add_lgt"]
+                additional_params.append(
+                    "Length:" + lgt
+                )
+
+            if len(additional_params) > 0:
+                return "\n".join(additional_params)
+            else:
+                return None
+
         results = dict(
             first_parsed=round(datetime.datetime.now().timestamp()),
             updated=round(datetime.datetime.now().timestamp()),
@@ -387,6 +447,7 @@ class ScrapeCategoryProducts:
             for pr in product_link["products"]:
 
                 print(pr)
+                shop_id = "1"
 
                 html = requests.get(pr).text
                 bs = BeautifulSoup(html, "html.parser")
@@ -407,8 +468,8 @@ class ScrapeCategoryProducts:
                 language = get_language()
 
                 result = dict(
-                    shop_id="1",
-                    available = available,
+                    shop_id=shop_id,
+                    available=available,
                     timestamp=round(datetime.datetime.now().timestamp()),
                     cat_id=product_link["cat_id"],
                     url=pr,
@@ -426,6 +487,7 @@ class ScrapeCategoryProducts:
                     img_main=pic_dict["main_pic"],
                     img_additional=pic_dict["additional_pics"],
                     language=language,
+                    additional_attrs=get_additional_attrs()
                 )
 
                 results["results"].append(result)

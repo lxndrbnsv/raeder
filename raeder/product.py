@@ -1,3 +1,4 @@
+import time
 import json
 import datetime
 
@@ -62,6 +63,8 @@ class ReadProducts:
 class WriteProducts:
     def __init__(self):
 
+        ts = datetime.datetime.now()
+
         with open("./results.json", "r") as json_data:
             results = json.load(json_data)
 
@@ -79,24 +82,24 @@ class WriteProducts:
             for r in results["results"][4:6]:
                 with connection.cursor() as cursor:
                     sql = "INSERT INTO parsed_products " \
-                          "(shop_id, product_ref, parsed, updated, url," \
+                          "(shop_id, product_ref, parsed , updated, url," \
                           " name, available, " \
                           "brand, art," \
                           " old_price, current_price, currency, " \
                           "description, material, color, dimensions, " \
                           "length, height, width, volume, images, " \
                           "img_main, img_additional,  " \
-                          "category) " \
+                          "category, attr_other) " \
                           "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
                           "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
-                          " %s)"
+                          " %s, %s)"
 
                     cursor.execute(
                         sql, (
                             1, r["product_ref"],
-                            round(datetime.datetime.now().timestamp()),
-                            round(datetime.datetime.now().timestamp()),
-                            r["url"], r["name"],
+                            ts,
+                            ts,
+                            r["url"], r["name"], r["available"],
                             None, r["art"], r["price"]["old_price"],
                             r["price"]["price"], r["currency"],
                             r["description"], r["parameters"]["material"],
@@ -106,8 +109,8 @@ class WriteProducts:
                             r["parameters"]["chars"]["volume"],
                             ", ".join(r["pictures"]), r["img_main"], ", ".join(
                                 r["img_additional"]
-                            ), r["cat_id"]
-                        )
+                            ), r["cat_id"], r["additional_attrs"]
+                        ),
                     )
                     connection.commit()
         finally:

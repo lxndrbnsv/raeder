@@ -17,14 +17,14 @@ class GenerateRefCode:
             for t in text_data:
                 existing_codes.append(t.replace("\n", ""))
 
-            char_num = 4
+            char_num = 1
             ref_code = "".join(
-                random.choice(letters + digits) for __ in range(char_num)
+                random.choice(digits) for __ in range(char_num)
             )
             while ref_code in existing_codes:
                 char_num = char_num + 1
                 ref_code = "".join(
-                    random.choice(letters + digits) for __ in range(char_num)
+                    random.choice(digits) for __ in range(char_num)
                 )
 
             return ref_code
@@ -60,3 +60,21 @@ class ReadDB:
         finally:
             connection.close()
         self.result = result
+
+
+class GenerateName:
+    def __init__(self, charnum):
+        def generate():
+            letters = string.ascii_letters
+            digits = string.digits
+
+            char_num = charnum
+            ref_code = "".join(
+                random.choice(letters + digits) for __ in range(char_num)
+            )
+
+            return ref_code
+
+        value = generate()
+
+        self.value = value
