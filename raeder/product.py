@@ -89,10 +89,10 @@ class WriteProducts:
                           "description, material, color, dimensions, " \
                           "length, height, width, volume, images, " \
                           "img_main, img_additional,  " \
-                          "category, attr_other) " \
+                          "category, attr_other, image_main_url, image_additional_url) " \
                           "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
                           "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
-                          " %s, %s)"
+                          " %s, %s, %s, %s)"
 
                     cursor.execute(
                         sql, (
@@ -107,9 +107,10 @@ class WriteProducts:
                             r["parameters"]["dimensions"], r["length"],
                             r["height"], r["width"],
                             r["parameters"]["chars"]["volume"],
-                            ", ".join(r["pictures"]), r["img_main"], ", ".join(
+                            ", ".join(r["pictures"]["pics_all"]), r["img_main"], ", ".join(
                                 r["img_additional"]
-                            ), r["cat_id"], r["additional_attrs"]
+                            ), r["cat_id"], r["additional_attrs"],
+                            r["img_main_url"], ", ".join(r["img_additional_url"])
                         ),
                     )
                     connection.commit()

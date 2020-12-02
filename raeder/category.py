@@ -392,21 +392,49 @@ class ScrapeCategoryProducts:
                 char_num = char_num + 1
                 image_name = GenerateName(charnum=char_num).value
 
+            pic_names = []
+
             for pic in pics:
                 r = requests.get(pic, allow_redirects=True)
                 open(
                     f"./files/pics/{shop_id}/{image_name}.jpg", "wb"
                 ).write(r.content)
+                pic_names.append(f"{image_name}.jpg")
 
-            return pics
+            if len(pic_names) == 0:
+                pic_names = None
+
+            return {"pics_all": pics, "pic_names": pic_names}
 
         def manage_pics():
-            if len(pictures) == 1:
-                return dict(main_pic=pictures[0], additional_pics=[])
-            if len(pictures) >= 2:
-                return dict(main_pic=pictures[0], additional_pics=pictures[1:])
-            if len(pictures) == 0:
-                return dict(main_pic=None, additional_pics=None)
+            if len(pictures["pics_all"]) == 1:
+                additional_pic_urls = []
+                for p in pictures["pic_names"]:
+                    additional_pic_urls.append(
+                        f"http://3.127.139.108/api/images/{shop_id}/{p}"
+                    )
+                return dict(
+                    main_pic=pictures["pics_all"][0],
+                    additional_pics=[],
+                    main_pic_url=f"http://3.127.139.108/api/images/{shop_id}/"
+                                 f"{pictures['pic_names'][0]}",
+                    additional_pic_urls=[]
+                )
+            if len(pictures["pics_all"]) >= 2:
+                return dict(
+                    main_pic=pictures["pics_all"][0],
+                    additional_pics=pictures["pics_all"][1:],
+                    main_pic_url=f"http://3.127.139.108/api/images/{shop_id}/"
+                                 f"{pictures['pic_names'][0]}",
+                    additional_pic_urls=[]
+                )
+            if len(pictures["pics_all"]) == 0:
+                return dict(
+                    main_pic=[],
+                    additional_pics=[],
+                    main_pic_url=[],
+                    additional_pic_urls=[]
+                )
 
         def get_language():
             """Возвращает язык, на котором опубликована информация
@@ -465,33 +493,37 @@ class ScrapeCategoryProducts:
                 pictures = download_pictures()
                 pic_dict = manage_pics()
                 language = get_language()
+                try:
+                    result = dict(
+                        shop_id=shop_id,
+                        available=available,
+                        timestamp=round(datetime.datetime.now().timestamp()),
+                        cat_id=product_link["cat_id"],
+                        url=pr,
+                        name=name,
+                        art=art,
+                        product_ref=product_ref,
+                        price=price,
+                        currency=currency,
+                        description=description,
+                        parameters=parameters,
+                        height=height,
+                        length=length,
+                        width=width,
+                        pictures=pictures,
+                        img_main=pic_dict["main_pic"],
+                        img_additional=pic_dict["additional_pics"],
+                        img_main_url=pic_dict["main_pic_url"],
+                        img_additional_url=pic_dict["additional_pic_urls"],
+                        language=language,
+                        additional_attrs=get_additional_attrs()
+                    )
 
-                result = dict(
-                    shop_id=shop_id,
-                    available=available,
-                    timestamp=round(datetime.datetime.now().timestamp()),
-                    cat_id=product_link["cat_id"],
-                    url=pr,
-                    name=name,
-                    art=art,
-                    product_ref=product_ref,
-                    price=price,
-                    currency=currency,
-                    description=description,
-                    parameters=parameters,
-                    height=height,
-                    length=length,
-                    width=width,
-                    pictures=pictures,
-                    img_main=pic_dict["main_pic"],
-                    img_additional=pic_dict["additional_pics"],
-                    language=language,
-                    additional_attrs=get_additional_attrs()
-                )
+                    results["results"].append(result)
 
-                results["results"].append(result)
-
-                print("--- --- ---")
+                    print("--- --- ---")
+                except AttributeError:
+                    pass
 
         res = json.dumps(results)
         with open("./results.json", "w+") as json_file:
