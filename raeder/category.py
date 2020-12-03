@@ -576,11 +576,11 @@ class UpdateFetchedProducts:
 
             html = requests.get(product_link).text
             bs = BeautifulSoup(html, "html.parser")
-
-            available = if_available()
-            price = get_price()
-            
             try:
+                available = if_available()
+                price = get_price()
+            
+
                 result = dict(
                     available=available,
                     price=price,
