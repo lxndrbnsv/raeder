@@ -82,18 +82,18 @@ class WriteProducts:
                 try:
                     with connection.cursor() as cursor:
                         sql = "INSERT INTO parsed_products " \
-                            "(shop_id, product_ref, parsed , updated, url," \
-                            " name, available, " \
-                            "brand, art," \
-                            " old_price, current_price, currency, " \
-                            "description, material, color, dimensions, " \
-                            "length, height, width, volume, images, " \
-                            "img_main, img_additional,  " \
-                            "category, attr_other, " \
-                            "image_main_url, image_additional_url) " \
-                            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
-                            "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "\
-                            "%s, %s, %s, %s, %s)"
+                              "(shop_id, product_ref, parsed , updated, url," \
+                              " name, available, " \
+                              "brand, art," \
+                              " old_price, current_price, currency, " \
+                              "description, material, color, dimensions, " \
+                              "length, height, width, volume, images, " \
+                              "img_main, img_additional,  " \
+                              "category, attr_other, " \
+                              "image_main_url, image_additional_url) " \
+                              "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                              "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
+                              "%s, %s, %s, %s, %s)"
 
                         cursor.execute(
                             sql, (
@@ -147,12 +147,13 @@ class UpdateProducts:
                     with connection.cursor() as cursor:
                         cursor.execute(sql, r["url"])
                         sql = "UPDATE parsed_products SET " \
-                            "(updated, available, old_price, current_price) " \
-                            "VALUES (%s, %s, %s, %s) where url=%s"
+                              "(updated, available, old_price, current_price) " \
+                              "VALUES (%s, %s, %s, %s) where url=%s"
 
                         cursor.execute(
                             sql, (
                                 ts, r["available"], r["price"]["old_price"],
+                                r["price"]["price"]
                             )
                         )
                         connection.commit()
