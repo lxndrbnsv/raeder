@@ -145,7 +145,7 @@ class UpdateProducts:
             for r in results["results"]:
                 try:
                     with connection.cursor() as cursor:
-                        cursor.execute(sql, r["url"])
+
                         sql = "UPDATE parsed_products SET " \
                               "(updated, available, old_price, current_price) " \
                               "VALUES (%s, %s, %s, %s) where url=%s"
@@ -153,7 +153,7 @@ class UpdateProducts:
                         cursor.execute(
                             sql, (
                                 ts, r["available"], r["price"]["old_price"],
-                                r["price"]["price"]
+                                r["price"]["price"], r["url"]
                             )
                         )
                         connection.commit()
